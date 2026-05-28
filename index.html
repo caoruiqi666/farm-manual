@@ -2,109 +2,139 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a5f2a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="农场手册">
+<meta name="mobile-web-app-capable" content="yes">
 <title>智慧农场操作手册</title>
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:#f0f4f0}
-.header{background:#1a5f2a;color:#fff;padding:15px;text-align:center}
-.content{padding:20px;max-width:480px;margin:0 auto}
-.card{background:#fff;border-radius:10px;padding:15px;margin-bottom:10px;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
-.btn{background:#1a5f2a;color:#fff;border:none;padding:10px 20px;border-radius:5px;cursor:pointer;font-size:14px}
-.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:space-around;padding:10px}
-.nav-item{text-align:center;cursor:pointer}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#f0f4f0;color:#333;line-height:1.6}
+.header{background:linear-gradient(135deg,#1a5f2a,#2e7d32);color:#fff;padding:15px;text-align:center;position:sticky;top:0;z-index:100}
+.header h1{margin:0;font-size:20px}
+.content{padding:15px;max-width:480px;margin:0 auto;padding-bottom:80px}
+.card{background:#fff;border-radius:12px;padding:15px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.card-title{font-size:16px;font-weight:700;margin-bottom:8px;color:#1a5f2a}
+.card-body{font-size:14px;color:#666}
+.btn{background:#1a5f2a;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;margin-right:8px;margin-top:8px}
+.btn-secondary{background:#f0f0f0;color:#333}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:space-around;padding:8px 0;z-index:100}
+.nav-item{text-align:center;cursor:pointer;color:#999;font-size:12px}
+.nav-item.active{color:#1a5f2a}
+.nav-icon{font-size:22px;display:block}
+.tag{display:inline-block;background:#e8f5e9;color:#1a5f2a;font-size:11px;padding:3px 10px;border-radius:15px;margin:3px}
+.highlight{background:#fff3cd;padding:2px 6px;border-radius:4px;color:#856404;font-size:13px}
+.todo-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f0}
+.todo-check{width:22px;height:22px;border:2px solid #1a5f2a;border-radius:50%;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.todo-check.done{background:#1a5f2a;color:#fff}
+.todo-text{flex:1;font-size:14px}
+.todo-text.done{text-decoration:line-through;color:#999}
+.textarea{width:100%;min-height:150px;border:1px solid #ddd;border-radius:8px;padding:10px;font-size:14px;resize:none}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:flex-end}
+.modal.show{display:flex}
+.modal-content{background:#fff;width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:20px;max-height:80vh;overflow-y:auto}
+.preview{background:#f8f8f8;border-radius:8px;padding:10px;margin:10px 0;font-size:13px}
+.empty{text-align:center;padding:40px;color:#999}
+.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 20px;border-radius:8px;font-size:14px;z-index:300;display:none}
 </style>
 </head>
 <body>
-<div class="header">
-  <h1>🌱 智慧农场操作手册</h1>
-</div>
-<div class="content" id="content">
-  <div class="card">
-    <h3>📊 仪表盘</h3>
-    <p>待办事项: <span id="todoCount">0</span></p >
-    <p>知识条目: <span id="entryCount">0</span></p >
+<div class="header"><h1>🌱 智慧农场操作手册</h1></div>
+<div class="content" id="content"></div>
+<div class="nav" id="nav">
+  <div class="nav-item active" onclick="showPage('home')">
+    <span class="nav-icon">🏠</span>首页
   </div>
-  <div class="card">
-    <h3>⚡ 快捷操作</h3>
-    <button class="btn" onclick="addTest()">添加测试数据</button>
-    <button class="btn" onclick="showAlert()">测试弹窗</button>
+  <div class="nav-item" onclick="showPage('knowledge')">
+    <span class="nav-icon">📚</span>知识
   </div>
-  <div class="card">
-    <h3>📋 粘贴记录</h3>
-    <textarea id="inputArea" style="width:100%;height:100px;margin-bottom:10px" placeholder="粘贴聊天记录..."></textarea>
-    <button class="btn" onclick="parseText()">解析</button>
-    <div id="result" style="margin-top:10px"></div>
+  <div class="nav-item" onclick="showPage('paste')">
+    <span class="nav-icon">➕</span>粘贴
+  </div>
+  <div class="nav-item" onclick="showPage('todo')">
+    <span class="nav-icon">✅</span>待办
+  </div>
+  <div class="nav-item" onclick="showPage('settings')">
+    <span class="nav-icon">⚙️</span>设置
   </div>
 </div>
-<div class="nav">
-  <div class="nav-item" onclick="showPage('home')">🏠<br>首页</div>
-  <div class="nav-item" onclick="showPage('knowledge')">📚<br>知识</div>
-  <div class="nav-item" onclick="showPage('paste')">➕<br>粘贴</div>
-  <div class="nav-item" onclick="showPage('todo')">✅<br>待办</div>
-  <div class="nav-item" onclick="showPage('settings')">⚙️<br>设置</div>
+<div class="toast" id="toast"></div>
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+      <h3 style="margin:0">📋 粘贴聊天记录</h3>
+      <span style="font-size:24px;cursor:pointer" onclick="closeModal()">✕</span>
+    </div>
+    <p style="font-size:13px;color:#666">💡 保存后会自动下载备份文件</p >
+    <textarea class="textarea" id="inputArea" placeholder="复制你和AI的完整聊天记录，粘贴到这里..."></textarea>
+    <div class="preview" id="preview" style="display:none"></div>
+    <button class="btn" onclick="parseText()">🔍 智能解析</button>
+    <button class="btn" id="saveBtn" style="display:none;background:#2e7d32" onclick="saveData()">💾 保存并下载</button>
+    <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+  </div>
 </div>
 
 <script>
-var data = {entries: [], todos: []};
+// 数据存储
+var memoryData = {entries: [], todos: []};
 
-function showAlert() {
-  alert('JavaScript运行正常！');
+// 分类定义
+var categories = {
+  water: {name: '🧪 水质实验室', keywords: ['GH','KH','pH','硬度','氨','硝化','亚硝酸盐','硝酸盐','测试剂','假硬','碳酸','钙镁','水质','水体','脱壳','蜕壳']},
+  bio: {name: '🐌 生物饲养区', keywords: ['螺','虾','鱼','宝莲灯','孔雀鱼','苹果螺','囊螺','水晶虾','极火虾','樱花虾','莫斯','水草','水榕','蜈蚣草','浮萍','密度','繁殖','种群']},
+  plant: {name: '🌱 植物种植区', keywords: ['生菜','小葱','薄荷','草莓','番茄','香菜','菠菜','芹菜','徒长','补光','LED','光照','光谱','PPFD','色温','氮','磷','钾','NPK','液肥','施肥','水培']},
+  device: {name: '🔧 设备工坊', keywords: ['灯','LED','ESP','传感器','水泵','加热','帆布池','插座','WiFi','蓝牙','量子板','COB','定时','功率','电压','继电器']},
+  nutrient: {name: '🧂 营养调配台', keywords: ['草木灰','烟灰','蛋壳','钙肥','氮肥','钾肥','磷肥','过磷酸钙','硫酸钾','尿素','豆水','液肥','堆肥','发酵','粪肥']},
+  env: {name: '❄️ 环境控制室', keywords: ['冬季','大棚','温室','供暖','保温','发酵','堆肥','化粪池','沼气','温度','湿度','莫斯科','明斯克','俄罗斯','白俄罗斯']},
+  business: {name: '💰 商业计划书', keywords: ['成本','盈利','销售','跨境','物流','受众','市场','价格','500元','预算','投资','收入','客户']}
+};
+
+var currentPage = 'home';
+var tempParsed = null;
+
+// 显示提示
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(function() { t.style.display = 'none'; }, 2000);
 }
 
-function addTest() {
-  data.entries.push({id: Date.now(), text: '测试条目'});
-  data.todos.push({id: Date.now(), text: '测试待办', done: false});
-  updateCount();
-  alert('已添加测试数据！');
-}
-
-function updateCount() {
-  document.getElementById('todoCount').textContent = data.todos.filter(function(t){return !t.done}).length;
-  document.getElementById('entryCount').textContent = data.entries.length;
-}
-
-function parseText() {
-  var text = document.getElementById('inputArea').value;
-  var result = document.getElementById('result');
-  if(!text) {
-    result.innerHTML = '<p style="color:red">请先输入内容</p >';
-    return;
-  }
-
-  var lines = text.split('
-').filter(function(l){return l.trim()});
-  var todos = [];
-  lines.forEach(function(line) {
-    if(line.match(/^\s*[\[【]/)) {
-      todos.push(line.replace(/^\s*[\[【]\s*[\]】]\s*/, ''));
-    }
-  });
-
-  result.innerHTML = '<p>识别到 ' + lines.length + ' 行</p >' + 
-    '<p>待办: ' + todos.length + ' 条</p >' +
-    '<button class="btn" onclick="saveData()">保存</button>';
-
-  window.tempData = {raw: text, todos: todos};
-}
-
-function saveData() {
-  if(window.tempData) {
-    data.entries.push(window.tempData);
-    window.tempData.todos.forEach(function(t) {
-      data.todos.push({text: t, done: false});
-    });
-    updateCount();
-    alert('保存成功！');
-    document.getElementById('inputArea').value = '';
-    document.getElementById('result').innerHTML = '';
-  }
-}
-
+// 切换页面
 function showPage(page) {
-  alert('切换到: ' + page);
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  event.target.closest('.nav-item').classList.add('active');
+  render();
 }
 
-updateCount();
-</script>
-</body>
-</html>
+// 渲染内容
+function render() {
+  var c = document.getElementById('content');
+  switch(currentPage) {
+    case 'home': renderHome(c); break;
+    case 'knowledge': renderKnowledge(c); break;
+    case 'paste': openModal(); break;
+    case 'todo': renderTodo(c); break;
+    case 'settings': renderSettings(c); break;
+  }
+}
+
+function renderHome(c) {
+  var pending = memoryData.todos.filter(function(t) { return !t.done; }).length;
+  var html = '<div class="card"><div class="card-title">📊 仪表盘</div>';
+  html += '<p>待办事项: ' + pending + '</p >';
+  html += '<p>知识条目: ' + memoryData.entries.length + '</p ></div>';
+
+  html += '<div class="card"><div class="card-title">📂 知识板块</div>';
+  Object.keys(categories).forEach(function(key) {
+    var cat = categories[key];
+    var count = memoryData.entries.filter(function(e) { return e.tags && e.tags.indexOf(key) !== -1; }).length;
+    html += '<div class="tag" style="cursor:pointer" onclick="showKnowledge('' + key + '')">' + cat.name + ' (' + count + ')</div>';
+  });
+  html += '</div>';
+
+  if(memoryData.entries.length > 0) {
+    html += '<div class="card"><div class="card-title">🕐 最新记录</div>';
+    memoryD
